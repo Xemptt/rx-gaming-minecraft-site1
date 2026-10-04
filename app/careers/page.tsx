@@ -27,7 +27,8 @@ export default function CareersPage() {
                 "WORKING MICROPHONE & ACTIVE DISCORD ACCOUNT",
                 "NO PRIOR BANS OR INFRACTIONS ON THE SERVER"
             ],
-            applyLink: storeSettings.discordLink || "#"
+            /* FIX: Points directly to your separate careersFormLink property variable */
+            applyLink: storeSettings.careersFormLink || "#"
         },
         {
             id: "moderator",
@@ -38,7 +39,7 @@ export default function CareersPage() {
                 "CAPABLE OF RESOLVING player disputes and chat toxicity firmly",
                 "PROACTIVE IN MONITORING hacks, cheat clients, and exploit points"
             ],
-            applyLink: storeSettings.discordLink || "#"
+            applyLink: storeSettings.careersFormLink || "#"
         },
         {
             id: "administrator",
@@ -49,7 +50,7 @@ export default function CareersPage() {
                 "ADVANCED LOG ANALYSIS, plugin handling, and event coordination tracking",
                 "HIGH AVAILABILITY and devotion to network infrastructure operations"
             ],
-            applyLink: storeSettings.discordLink || "#"
+            applyLink: storeSettings.careersFormLink || "#"
         }
     ];
 
@@ -108,7 +109,6 @@ export default function CareersPage() {
                                 </div>
 
                                 {/* Slide-out Requirements Data Container */}
-                                {/* FIX: Cleaned syntax layout parameter keys completely */}
                                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
                                     isOpen ? "max-h-[500px]" : "max-h-0"
                                 }`}>
