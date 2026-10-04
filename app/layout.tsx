@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Title from "../component/title";
 import storeSettings from "../store-settings.json";
+import { Analytics } from "@vercel/analytics/react";
 
 const minecraftFont = localFont({
     src: "./fonts/Minecraft.ttf",
@@ -49,11 +50,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={`${minecraftFont.className} antialiased bg-[#E5E5E5] text-black flex flex-col min-h-screen`}
-            >
+            <body className={`${minecraftFont.className} antialiased bg-[#E5E5E5] text-black flex flex-col min-h-screen`}>
                 <Title />
                 {children}
+                <Analytics />
             </body>
         </html>
     );
