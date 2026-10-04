@@ -13,29 +13,23 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!serverIp) return;
+
     async function fetchServerStatus() {
       try {
-        // Extract host and port cleanly for the API call
-        const [host, port] = serverIp.split(":");
-        const queryPort = port || "25565";
-
-        // Query the mcapi.us tracking engine
-        const response = await fetch(`https://mcapi.us{host}&port=${queryPort}`);
+        const response = await fetch(`/api/status?ip=${serverIp}`);
         const data = await response.json();
-
-        if (data && data.online) {
-          setPlayersOnline(data.players?.now ?? 0);
-          setMaxPlayers(data.players?.max ?? 20);
-        }
+        setPlayersOnline(data.playersOnline);
+        setMaxPlayers(data.maxPlayers);
       } catch (error) {
-        console.error("Failed to query live data stream:", error);
+        console.error("Internal tracker route error:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000); // Pull fresh counts every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000);
     return () => clearInterval(interval);
   }, [serverIp]);
 
@@ -45,7 +39,6 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
   return (
     <span className="text-stone-800 text-sm font-bold tracking-wide flex items-center gap-1.5">
-      {/* Active Pulse Animation Dot */}
       <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
