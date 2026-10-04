@@ -5,6 +5,13 @@ import Footer from "../../component/footer";
 import { useState } from "react";
 import storeSettings from "../../store-settings.json";
 
+type PackageCard = {
+    name: string;
+    price: string;
+    features: string[];
+    buyUrl: string;
+};
+
 export default function StandaloneInsanecraftProfile() {
     // State to toggle the custom interactive mods dropdown menu block
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,6 +26,33 @@ export default function StandaloneInsanecraftProfile() {
         "Biomes O' Plenty (Enchanted World Generation)",
         "Tinkers' Construct (Custom Forged Weaponry)",
         "Mekanism (Advanced Processing Machinery)"
+    ];
+
+    // Curated Insanecraft rank package list mapping directly to your live Tebex setup
+    const packages: PackageCard[] = [
+        {
+            name: "Extreme Rank",
+            price: "£5.00",
+            features: [
+                "PREMIUM EXTREME CHAT TAG & COLOR",
+                "ACCESS TO /FLY IN LOBBIES",
+                "3x MONTHLY VAULT KEYS",
+                "EXCLUSIVE EXT-KIT STARTER PACK"
+            ],
+            buyUrl: storeSettings.tebexInsanecraft || "https://tebex.store"
+        },
+        {
+            name: "Mental Rank",
+            price: "£10.00",
+            features: [
+                "ULTIMATE MENTAL CHAT TAG & GLOW EFFECT",
+                "ACCESS TO /FLY EVERYWHERE & /FEED",
+                "7x MONTHLY VAULT KEYS",
+                "EXCLUSIVE MNT-KIT STARTER PACK",
+                "PRIORITY QUEUE SERVER JOIN PASS"
+            ],
+            buyUrl: storeSettings.tebexInsanecraft || "https://tebex.store"
+        }
     ];
 
     return (
@@ -53,11 +87,12 @@ export default function StandaloneInsanecraftProfile() {
                             </p>
                         </div>
 
-                        {/* FIX: Replaced Server Specs with an interactive, pixel-perfect Dropdown Component */}
+                        {/* Dropdown Component */}
                         <div className="border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-left overflow-hidden">
                             <button 
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="w-full p-6 flex items-center justify-between font-black text-xl uppercase bg-white border-b-4 border-black transition-all hover:bg-gray-50 active:bg-gray-100"
+                                type="button"
+                                className="w-full p-6 flex items-center justify-between font-black text-xl uppercase bg-white border-b-4 border-black transition-all hover:bg-gray-50 active:bg-gray-100 cursor-pointer"
                             >
                                 <span>Featured Mods List</span>
                                 <svg 
@@ -72,7 +107,7 @@ export default function StandaloneInsanecraftProfile() {
                             </button>
                             
                             {/* Slide-out item panel containing the list of mods */}
-                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isDropdownOpen ? 'max-h-[500px] border-b-0' : 'max-h-0'}`}>
+                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isDropdownOpen ? 'max-h-[500px]' : 'max-h-0'}`}>
                                 <div className="p-6 bg-gray-50/50 space-y-3 font-bold text-xs uppercase text-gray-600 border-t-0">
                                     {modpackList.map((mod, index) => (
                                         <div key={index} className="flex items-center gap-2 py-1 border-b border-dashed border-gray-200 last:border-0">
@@ -90,7 +125,6 @@ export default function StandaloneInsanecraftProfile() {
                         {/* Direct Connection Address Node Box */}
                         <div className="border-4 border-black bg-[#22D3EE]/10 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center">
                             <h4 className="font-black uppercase text-xs text-gray-500 mb-1">Server Address IP</h4>
-                            {/* FIX: Explicitly adjusted the domain text element grid to match MC.BICCYS.UK:25567 */}
                             <p className="font-black text-sm uppercase text-black bg-white border-2 border-black py-2 tracking-wide select-all">
                                 MC.BICCYS.UK:25567
                             </p>
@@ -100,7 +134,6 @@ export default function StandaloneInsanecraftProfile() {
                         </div>
 
                         {/* Modpack Client Download Anchor Button Slot */}
-                        {/* FIX: Linked directly to your official CurseForge layout pack identifier address */}
                         <a 
                             href="https://www.curseforge.com/minecraft/modpacks/insanecraft-modpack" 
                             target="_blank" 
@@ -118,7 +151,60 @@ export default function StandaloneInsanecraftProfile() {
                             Back to Home
                         </a>
                     </div>
+                </div>
 
+                {/* FIX: Injected the active Tebex Package Selection Section right here inside the layout container wrapper grid */}
+                <div className="space-y-6 pt-6">
+                    <div className="flex items-center gap-3 text-left">
+                        <span className="w-2 h-6 bg-[#22D3EE] inline-block" />
+                        <h4 className="text-lg font-black uppercase tracking-wide">AVAILABLE STORE PACKAGES</h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {packages.map((pkg, i) => (
+                            <div 
+                                key={i}
+                                className="border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between gap-6 text-left relative overflow-hidden"
+                            >
+                                {/* Card Header Details */}
+                                <div className="flex items-start justify-between w-full border-b-2 border-dashed border-gray-200 pb-4">
+                                    <div className="space-y-1">
+                                        <h3 className="text-2xl font-black uppercase tracking-wide text-black leading-tight">
+                                            {pkg.name}
+                                        </h3>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block">
+                                            IN-GAME PERK PACK
+                                        </span>
+                                    </div>
+                                    
+                                    {/* Cost Price Badge */}
+                                    <span className="border-4 border-black bg-black text-white px-3 py-1.5 text-base font-black tracking-wider uppercase select-none shadow-[2px_2px_0px_#000]">
+                                        {pkg.price}
+                                    </span>
+                                </div>
+
+                                {/* Features List Bullet Points */}
+                                <div className="flex-1 space-y-2.5 font-bold text-xs uppercase my-2">
+                                    {pkg.features.map((feat, idx) => (
+                                        <div key={idx} className="flex items-start gap-2.5">
+                                            <span className="text-[#C084FC] font-black text-sm">»</span>
+                                            <p className="text-black/80 tracking-wide pt-0.5 leading-relaxed">{feat}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Checkout CTA Buy Trigger Button */}
+                                <a
+                                    href={pkg.buyUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full bg-[#ffcc00] text-black border-4 border-black py-3 font-black text-sm tracking-widest text-center block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none uppercase"
+                                >
+                                    BUY PACKAGE
+                                </a>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
             </main>
