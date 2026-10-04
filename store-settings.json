@@ -21,7 +21,7 @@
   "discordRulesText": "1. ACCOUNT VERIFICATION\\nKeep your account profiles linked properly. Impersonating staff tiers, management roles, or secondary creators will result in immediate guild removal.\\n\\n2. DISCORD COMMUNITY CONDUCT\\nKeep all conversations clean and constructive inside their designated text channels. Do not mass tag management members or spam ticket systems for non-urgent tracking events.\\n\\n3. SECURITY & LINK SHARING\\nDo not post suspicious external hyperlinks, file download blocks, malware items, or malicious trade configurations. Any scam attempts will result in an automatic network ban.",
 
   "/* TEBEX SETTINGS INTEGRATION MOUNT TRACKS */": "=========================================",
-  "tebexMainStore": "https://tebex.io",
-  "tebexInsanecraft": "https://tebex.io",
-  "tebexRlcraft": "https://tebex.io"
+  "tebexMainStore": "https://tebex.store",
+  "tebexInsanecraft": "https://tebex.storecategory/insanecraft",
+  "tebexRlcraft": "https://tebex.storecategory/rlcraft"
 }
