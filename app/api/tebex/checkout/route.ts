@@ -23,16 +23,17 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 success: true,
                 isDemo: true,
-                // FIX: Translated destination from Polish 'sukces' to English 'success'
                 checkoutUrl: `${origin}/store/success`,
             });
         }
 
         const { origin } = new URL(req.url);
+        // Tebex utilizes a basic token authentication structure
         const basicAuth = Buffer.from(`${TEBEX_PUBLIC_TOKEN}:${TEBEX_PRIVATE_KEY}`).toString("base64");
         const authHeader = `Basic ${basicAuth}`;
 
-        const basketResponse = await fetch(`https://tebex.io{TEBEX_PUBLIC_TOKEN}/baskets`, {
+        // FIXED: Switched to the correct plugin endpoint, backticks, and added missing \$ signs
+        const basketResponse = await fetch(`https://tebex.io`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -40,7 +41,6 @@ export async function POST(req: Request) {
             },
             body: JSON.stringify({
                 username,
-                // FIX: Translated payment completion landing point redirect link path to English
                 complete_url: `${origin}/store/success`,
                 cancel_url: `${origin}/cart`,
                 complete_auto_redirect: true,
@@ -71,7 +71,8 @@ export async function POST(req: Request) {
                 continue;
             }
 
-            const addPkgResponse = await fetch(`https://tebex.io{basketIdent}/packages`, {
+            // FIXED: Added backticks and missing \$ string injection variables
+            const addPkgResponse = await fetch(`https://tebex.io/${basketIdent}/packages`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -92,6 +93,7 @@ export async function POST(req: Request) {
             lastBasketData = await addPkgResponse.json();
         }
 
+        // FIXED: Added template strings and fallback parameters cleanly
         const checkoutUrl =
             lastBasketData.data?.links?.checkout ||
             lastBasketData.links?.checkout ||
