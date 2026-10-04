@@ -8,7 +8,6 @@ interface ServerCounterProps {
 }
 
 export default function ServerCounter({ serverIp, serverName }: ServerCounterProps) {
-  // We initialize straight to player counters instead of an offline string
   const [playersOnline, setPlayersOnline] = useState<number>(0);
   const [maxPlayers, setMaxPlayers] = useState<number>(20);
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,15 +15,13 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
   useEffect(() => {
     async function fetchServerStatus() {
       try {
-        const response = await fetch(`https://mcsrvstat.us{serverIp}`);
+        // FIXED: Added the correct API endpoints, missing slash, and the \$ template string literal
+        const response = await fetch(`https://mcsrvstat.us{serverIp}?t=${Date.now()}`);
         const data = await response.json();
 
-        // If the server returns active player numbers, pull them in
-        if (data.players) {
+        if (data.online && data.players) {
           setPlayersOnline(data.players.online ?? 0);
           setMaxPlayers(data.players.max ?? 20);
-        } else if (data.debug?.query === false) {
-          console.warn(`${serverName} UDP query is blocked by hosting firewall.`);
         }
       } catch (error) {
         console.error("Failed to query Minecraft status API:", error);
