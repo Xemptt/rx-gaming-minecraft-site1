@@ -17,19 +17,34 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
     async function fetchServerStatus() {
       try {
-        const response = await fetch(`/api/status?ip=${serverIp}`);
+        // Strip the port out for fallback verification paths
+        const [host] = serverIp.split(":");
+
+        // Query the mc-api.net network using a cache-busting timestamp
+        const response = await fetch(`https://mc-api.net{host}?t=${Date.now()}`);
         const data = await response.json();
-        setPlayersOnline(data.playersOnline);
-        setMaxPlayers(data.maxPlayers);
+
+        if (data && data.online) {
+          setPlayersOnline(data.players?.online ?? 0);
+          setMaxPlayers(data.players?.max ?? 20);
+        } else {
+          // Alternative emergency endpoint fallback
+          const altRes = await fetch(`https://gstatus.eu{host}`);
+          const altData = await altRes.json();
+          if (altData.online) {
+            setPlayersOnline(altData.players.online ?? 0);
+            setMaxPlayers(altData.players.max ?? 20);
+          }
+        }
       } catch (error) {
-        console.error("Internal tracker route error:", error);
+        console.error("Direct connection stream failed:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000);
+    const interval = setInterval(fetchServerStatus, 30000); // Check numbers every 30 seconds
     return () => clearInterval(interval);
   }, [serverIp]);
 
