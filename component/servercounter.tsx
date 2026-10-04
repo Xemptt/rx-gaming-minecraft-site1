@@ -17,30 +17,20 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
     async function fetchServerStatus() {
       try {
-        const [host, port] = serverIp.split(":");
-        const queryPort = port || "25565";
-
-        // WE USE A SECURE REVERSE PROXY TO BYPASS BROWSER MIXED CONTENT SECURITY BLOCKS
-        const targetUrl = `http://mcapi.us{host}&port=${queryPort}`;
-        const response = await fetch(`https://allorigins.win{encodeURIComponent(targetUrl)}`);
-        const wrapperData = await response.json();
+        const response = await fetch(`/api/status?ip=${serverIp}`);
+        const data = await response.json();
         
-        // Parse the wrapped secure dataset
-        const data = JSON.parse(wrapperData.contents);
-
-        if (data && data.online) {
-          setPlayersOnline(data.players?.now ?? 0);
-          setMaxPlayers(data.players?.max ?? 20);
-        }
+        setPlayersOnline(data.playersOnline ?? 0);
+        setMaxPlayers(data.maxPlayers ?? 20);
       } catch (error) {
-        console.error("Secure proxy tunnel query failed:", error);
+        console.error("Internal API route fetch failed:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000); // Check numbers every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000); // Poll every 30 seconds
     return () => clearInterval(interval);
   }, [serverIp]);
 

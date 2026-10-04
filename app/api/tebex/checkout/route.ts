@@ -1,113 +1,78 @@
 import { NextResponse } from "next/server";
+import net from "net";
 
-export async function POST(req: Request) {
-    try {
-        const body = await req.json().catch(() => ({}));
-        const { username, email, items } = body;
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const ip = searchParams.get("ip");
 
-        if (!username || !email || !items || !Array.isArray(items) || items.length === 0) {
-            return NextResponse.json(
-                { error: "Invalid request. Nickname, email, and items are required." },
-                { status: 400 }
-            );
+  if (!ip) {
+    return NextResponse.json({ error: "Missing server IP" }, { status: 400 });
+  }
+
+  const [host, portStr] = ip.split(":");
+  const port = portStr ? parseInt(portStr, 10) : 25565;
+
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    let dataReceived = "";
+
+    socket.setTimeout(3500); // 3.5 second network cutoff timeout limit
+
+    socket.connect(port, host, () => {
+      // Send standard Minecraft Handshake + Status Request packet bytes
+      const handshakePacket = Buffer.from([
+        0x00, // Packet ID (Handshake)
+        0xf2, 0x05, // Protocol Version
+        host.length, // Host string length
+        ...Buffer.from(host), // Server domain string
+        (port >> 8) & 0xff, port & 0xff, // Port short bytes
+        0x01 // Next state (Status)
+      ]);
+
+      const requestPacket = Buffer.from([0x00]); // Request packet ID
+
+      // Prepend lengths to packets
+      const sendBuffer = Buffer.concat([
+        Buffer.from([handshakePacket.length]), handshakePacket,
+        Buffer.from([requestPacket.length]), requestPacket
+      ]);
+
+      socket.write(sendBuffer);
+    });
+
+    socket.on("data", (chunk) => {
+      dataReceived += chunk.toString("utf-8", 2); // Strip packet headers
+      socket.destroy(); // Break socket connection safely
+    });
+
+    socket.on("end", () => {
+      try {
+        const startJson = dataReceived.indexOf("{");
+        if (startJson !== -1) {
+          const rawJson = dataReceived.substring(startJson);
+          const parsed = JSON.parse(rawJson);
+
+          resolve(NextResponse.json({
+            online: true,
+            playersOnline: parsed.players?.online ?? 0,
+            maxPlayers: parsed.players?.max ?? 20
+          }));
+          return;
         }
+      } catch (e) {
+        console.error("Failed parsing raw socket payload", e);
+      }
+      resolve(NextResponse.json({ online: false, playersOnline: 0, maxPlayers: 20 }));
+    });
 
-        const TEBEX_PUBLIC_TOKEN = process.env.NEXT_PUBLIC_TEBEX_PUBLIC_TOKEN;
-        const TEBEX_PRIVATE_KEY = process.env.TEBEX_PRIVATE_KEY;
+    socket.on("error", () => {
+      socket.destroy();
+      resolve(NextResponse.json({ online: false, playersOnline: 0, maxPlayers: 20 }));
+    });
 
-        if (!TEBEX_PUBLIC_TOKEN || !TEBEX_PRIVATE_KEY) {
-            console.info("[Tebex API Checkout] Creator credentials not fully set. Processing in simulated DEMO mode.");
-            await new Promise((resolve) => setTimeout(resolve, 1200));
-
-            const { origin } = new URL(req.url);
-            return NextResponse.json({
-                success: true,
-                isDemo: true,
-                checkoutUrl: `${origin}/store/success`,
-            });
-        }
-
-        const { origin } = new URL(req.url);
-        // Tebex utilizes a basic token authentication structure
-        const basicAuth = Buffer.from(`${TEBEX_PUBLIC_TOKEN}:${TEBEX_PRIVATE_KEY}`).toString("base64");
-        const authHeader = `Basic ${basicAuth}`;
-
-        // FIXED: Switched to the correct plugin endpoint, backticks, and added missing \$ signs
-        const basketResponse = await fetch(`https://tebex.io`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: authHeader,
-            },
-            body: JSON.stringify({
-                username,
-                complete_url: `${origin}/store/success`,
-                cancel_url: `${origin}/cart`,
-                complete_auto_redirect: true,
-                custom: {
-                    email,
-                },
-            }),
-        });
-
-        if (!basketResponse.ok) {
-            const errText = await basketResponse.text();
-            console.error("[Tebex API] Basket creation failed:", errText);
-            throw new Error(`Failed to create basket on Tebex (status: ${basketResponse.status})`);
-        }
-
-        const basketJson = await basketResponse.json();
-        const basketIdent = basketJson.data?.ident;
-
-        if (!basketIdent) {
-            throw new Error("Basket identifier not found in Tebex response.");
-        }
-
-        let lastBasketData = basketJson;
-        for (const item of items) {
-            const pkgIdNum = parseInt(item.packageId, 10);
-            if (isNaN(pkgIdNum)) {
-                console.warn(`[Tebex API] Skipping non-numeric package ID: "${item.packageId}"`);
-                continue;
-            }
-
-            // FIXED: Added backticks and missing \$ string injection variables
-            const addPkgResponse = await fetch(`https://tebex.io/${basketIdent}/packages`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: authHeader,
-                },
-                body: JSON.stringify({
-                    package_id: pkgIdNum,
-                    quantity: item.quantity,
-                }),
-            });
-
-            if (!addPkgResponse.ok) {
-                const errText = await addPkgResponse.text();
-                console.error(`[Tebex API] Failed to add package ${pkgIdNum} to basket:`, errText);
-                throw new Error(`Failed to add package ${pkgIdNum} to Tebex basket`);
-            }
-
-            lastBasketData = await addPkgResponse.json();
-        }
-
-        // FIXED: Added template strings and fallback parameters cleanly
-        const checkoutUrl =
-            lastBasketData.data?.links?.checkout ||
-            lastBasketData.links?.checkout ||
-            `https://tebex.io{basketIdent}`;
-
-        return NextResponse.json({
-            success: true,
-            checkoutUrl,
-        });
-    } catch (err: any) {
-        console.error("[Tebex API Checkout Route Error]:", err);
-        return NextResponse.json(
-            { error: err.message || "An error occurred while preparing your checkout." },
-            { status: 500 }
-        );
-    }
+    socket.on("timeout", () => {
+      socket.destroy();
+      resolve(NextResponse.json({ online: false, playersOnline: 0, maxPlayers: 20 }));
+    });
+  });
 }
