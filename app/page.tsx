@@ -4,6 +4,7 @@ import Navbar from "../component/navbar";
 import Image from "next/image";
 import Footer from "../component/footer";
 import storeSettings from "../store-settings.json";
+import ServerCounter from "../component/servercounter";
 
 type Mode = {
     id: string;
@@ -21,11 +22,26 @@ export default function WalletPage() {
         { id: 'skywars', name: 'COMING SOON...', banner: storeSettings.comingSoonBanner || '/header.png', active: false, statusText: 'Under Development' },
     ];
 
+    const networkServers = [
+        {
+            name: "Insanecraft",
+            ip: "mc.biccys.uk:25567",
+            tag: "Modded Java",
+            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
+        },
+        {
+            name: "RLCraft",
+            ip: "play.rx-gaming.online:25565",
+            tag: "Survival RPG",
+            tagColor: "bg-amber-100 text-amber-800 border-amber-300"
+        }
+    ];
+
     return (
         <div className="min-h-screen w-full flex flex-col font-pixel bg-[#FAFAFA] text-black antialiased overflow-x-hidden">
             <Navbar />
 
-            <main className="max-w-7xl mx-auto w-full px-4 py-8 space-y-6 flex-1 relative z-20 pointer-events-auto">
+            <main className="max-w-7xl mx-auto w-full px-4 py-8 space-y-8 flex-1 relative z-20 pointer-events-auto">
                 <h1 className="sr-only">{storeSettings.serverName} - Premium Minecraft Store</h1>
                 
                 {/* Hero Banner Welcome Splash Box */}
@@ -71,8 +87,39 @@ export default function WalletPage() {
                     </div>
                 </section>
 
+                {/* 📡 New Server Status Hub Block */}
+                <section className="w-full space-y-4">
+                    <h3 className="text-2xl font-bold uppercase border-l-8 border-[#22D3EE] pl-4 text-black text-left">
+                        Network Live Feed
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {networkServers.map((server) => (
+                            <div 
+                                key={server.name}
+                                className="bg-white border-4 border-black p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5"
+                            >
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-xl font-bold uppercase tracking-wide text-black">{server.name}</h4>
+                                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold uppercase ${server.tagColor}`}>
+                                            {server.tag}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs font-mono select-all bg-stone-100 border-2 border-stone-200 p-2 rounded text-stone-600 block w-full truncate">
+                                        {server.ip}
+                                    </p>
+                                </div>
+                                <div className="mt-4 pt-3 border-t-2 border-dashed border-stone-200 flex items-center justify-between text-sm">
+                                    <span className="font-bold text-stone-500 uppercase tracking-wider text-xs">Live Status:</span>
+                                    <ServerCounter serverIp={server.ip} serverName={server.name} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
                 {/* 2x2 Selection Card Framework Grid */}
-                <section id="select-server" className="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-4 scroll-mt-6">
+                <section id="select-server" className="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-2 scroll-mt-6">
                     <div className="lg:col-span-3 space-y-6">
                         <h3 className="text-2xl font-bold uppercase border-l-8 border-[#22D3EE] pl-4 text-black text-left">Select Game Mode</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-white font-bold">
