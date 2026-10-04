@@ -15,28 +15,27 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
   useEffect(() => {
     async function fetchServerStatus() {
       try {
-        // FIXED: Dynamically isolates the domain/IP from the trailing colon port number
-        const splitTarget = serverIp.split(":");
-        const cleanHost = splitTarget[0];
-        const targetPort = splitTarget[1] || "25565";
+        // Extract host and port cleanly for the API call
+        const [host, port] = serverIp.split(":");
+        const queryPort = port || "25565";
 
-        // Querying the specific status payload directly 
-        const response = await fetch(`https://minetools.im{cleanHost}/${targetPort}`);
+        // Query the mcapi.us tracking engine
+        const response = await fetch(`https://mcapi.us{host}&port=${queryPort}`);
         const data = await response.json();
 
-        if (data && !data.error && data.players) {
-          setPlayersOnline(data.players.online ?? 0);
-          setMaxPlayers(data.players.max ?? 20);
+        if (data && data.online) {
+          setPlayersOnline(data.players?.now ?? 0);
+          setMaxPlayers(data.players?.max ?? 20);
         }
       } catch (error) {
-        console.error("Failed to query raw live stats:", error);
+        console.error("Failed to query live data stream:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000); // Polls fresh numbers every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000); // Pull fresh counts every 30 seconds
     return () => clearInterval(interval);
   }, [serverIp]);
 
