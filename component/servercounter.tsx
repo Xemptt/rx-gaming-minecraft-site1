@@ -17,27 +17,23 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
     async function fetchServerStatus() {
       try {
-        // Strip the port out for fallback verification paths
-        const [host] = serverIp.split(":");
+        const [host, port] = serverIp.split(":");
+        const queryPort = port || "25565";
 
-        // Query the mc-api.net network using a cache-busting timestamp
-        const response = await fetch(`https://mc-api.net{host}?t=${Date.now()}`);
-        const data = await response.json();
+        // WE USE A SECURE REVERSE PROXY TO BYPASS BROWSER MIXED CONTENT SECURITY BLOCKS
+        const targetUrl = `http://mcapi.us{host}&port=${queryPort}`;
+        const response = await fetch(`https://allorigins.win{encodeURIComponent(targetUrl)}`);
+        const wrapperData = await response.json();
+        
+        // Parse the wrapped secure dataset
+        const data = JSON.parse(wrapperData.contents);
 
         if (data && data.online) {
-          setPlayersOnline(data.players?.online ?? 0);
+          setPlayersOnline(data.players?.now ?? 0);
           setMaxPlayers(data.players?.max ?? 20);
-        } else {
-          // Alternative emergency endpoint fallback
-          const altRes = await fetch(`https://gstatus.eu{host}`);
-          const altData = await altRes.json();
-          if (altData.online) {
-            setPlayersOnline(altData.players.online ?? 0);
-            setMaxPlayers(altData.players.max ?? 20);
-          }
         }
       } catch (error) {
-        console.error("Direct connection stream failed:", error);
+        console.error("Secure proxy tunnel query failed:", error);
       } finally {
         setLoading(false);
       }
