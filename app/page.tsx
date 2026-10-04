@@ -87,30 +87,24 @@ export default function WalletPage() {
                     </div>
                 </section>
 
-                {/* 📡 New Server Status Hub Block */}
+                {/* 📡 Mini Server Status Hub Block */}
                 <section className="w-full space-y-4">
                     <h3 className="text-2xl font-bold uppercase border-l-8 border-[#22D3EE] pl-4 text-black text-left">
                         Network Live Feed
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {networkServers.map((server) => (
                             <div 
                                 key={server.name}
-                                className="bg-white border-4 border-black p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5"
+                                className="bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-4 transition-transform duration-200 hover:-translate-y-0.5"
                             >
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-xl font-bold uppercase tracking-wide text-black">{server.name}</h4>
-                                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold uppercase ${server.tagColor}`}>
-                                            {server.tag}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs font-mono select-all bg-stone-100 border-2 border-stone-200 p-2 rounded text-stone-600 block w-full truncate">
-                                        {server.ip}
-                                    </p>
+                                <div className="flex items-center gap-3">
+                                    <h4 className="text-lg font-bold uppercase tracking-wide text-black">{server.name}</h4>
+                                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-bold uppercase ${server.tagColor}`}>
+                                        {server.tag}
+                                    </span>
                                 </div>
-                                <div className="mt-4 pt-3 border-t-2 border-dashed border-stone-200 flex items-center justify-between text-sm">
-                                    <span className="font-bold text-stone-500 uppercase tracking-wider text-xs">Live Status:</span>
+                                <div className="text-sm font-bold flex items-center gap-2">
                                     <ServerCounter serverIp={server.ip} serverName={server.name} />
                                 </div>
                             </div>
