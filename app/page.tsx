@@ -23,19 +23,19 @@ export default function WalletPage() {
     ];
 
     const networkServers = [
-        {
-            name: "Insanecraft",
-            ip: "mc.biccys.uk:25567",
-            tag: "Modded Java",
-            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
-        },
-        {
-            name: "RLCraft",
-            ip: "play.rx-gaming.online:25565",
-            tag: "Modded Java",
-            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
-        }
-    ];
+    {
+        name: "Insanecraft",
+        ip: "mc.biccys.uk:25550", // FIXED: Changed from 25567 to the correct port 25550
+        tag: "Modded Java",
+        tagColor: "bg-purple-100 text-purple-800 border-purple-300"
+    },
+    {
+        name: "RLCraft",
+        ip: "play.rx-gaming.online:25565", // Verify that this port matches your server dashboard panel
+        tag: "Modded Java",
+        tagColor: "bg-purple-100 text-purple-800 border-purple-300"
+    }
+];
 
     return (
         <div className="min-h-screen w-full flex flex-col font-pixel bg-[#FAFAFA] text-black antialiased overflow-x-hidden">
