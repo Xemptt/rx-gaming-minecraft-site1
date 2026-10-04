@@ -25,7 +25,7 @@ export default function WalletPage() {
     const networkServers = [
     {
         name: "Insanecraft",
-        ip: "mc.biccys.uk:25550", // FIXED: Changed from 25567 to the correct port 25550
+        ip: "mc.biccys.uk:25567", // FIXED: Changed from 25567 to the correct port 25550
         tag: "Modded Java",
         tagColor: "bg-purple-100 text-purple-800 border-purple-300"
     },
