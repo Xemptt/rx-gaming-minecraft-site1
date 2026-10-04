@@ -32,8 +32,8 @@ export default function WalletPage() {
         {
             name: "RLCraft",
             ip: "play.rx-gaming.online:25565",
-            tag: "Survival RPG",
-            tagColor: "bg-amber-100 text-amber-800 border-amber-300"
+            tag: "Modded Java",
+            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
         }
     ];
 
