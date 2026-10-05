@@ -23,19 +23,19 @@ export default function WalletPage() {
     ];
 
     const networkServers = [
-    {
-        name: "Insanecraft",
-        ip: "mc.biccys.uk:25567", // FIXED: Changed from 25567 to the correct port 25550
-        tag: "Modded Java",
-        tagColor: "bg-purple-100 text-purple-800 border-purple-300"
-    },
-    {
-        name: "RLCraft",
-        ip: "Play.rx-gaming.online:25565", // Verify that this port matches your server dashboard panel
-        tag: "Modded Java",
-        tagColor: "bg-purple-100 text-purple-800 border-purple-300"
-    }
-];
+        {
+            name: "Insanecraft",
+            ip: "mc.biccys.uk:25567",
+            tag: "Modded Java",
+            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
+        },
+        {
+            name: "RLCraft",
+            ip: "play.rx-gaming.online:25565",
+            tag: "Modded Java",
+            tagColor: "bg-purple-100 text-purple-800 border-purple-300"
+        }
+    ];
 
     return (
         <div className="min-h-screen w-full flex flex-col font-pixel bg-[#FAFAFA] text-black antialiased overflow-x-hidden">
@@ -77,7 +77,6 @@ export default function WalletPage() {
                                 className="bg-white text-black border-4 border-black px-10 py-4 font-bold text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none uppercase flex items-center justify-center gap-2"
                             >
                                 {storeSettings.serverIP}
-                                {/* FIXED: Replaced w3.org shortcut string with standard schema URL pattern to prevent compiler lockups */}
                                 <svg xmlns="http://w3.org" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="square" strokeLinejoin="miter">
                                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                                     <polyline points="15 3 21 3 21 9" />
