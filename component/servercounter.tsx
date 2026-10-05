@@ -17,33 +17,33 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
     async function fetchServerStatus() {
       try {
-        // Parse host and port values cleanly to align with the direct tracker syntax
-        const [host, portStr] = serverIp.split(":");
-        const port = portStr || "25565";
+        // FIXED: Dynamically isolates the host domain from any colons or port numbers
+        // This ensures mcstatus.io gets a clean domain like 'play.rx-gaming.online' or 'mc.biccys.uk'
+        const [cleanHost] = serverIp.split(":");
 
-        // Query the high-performance xdefcon cluster securely via standard HTTPS routes
-        const response = await fetch(`https://xdefcon.com{host}/${port}/full`);
+        // Query the high-performance MCStatus cloud cluster over secure HTTPS lines
+        const response = await fetch(`https://mcstatus.io{cleanHost}`);
         
         if (!response.ok) {
-          throw new Error(`Cloud handshake dropped for ${host}:${port}`);
+          throw new Error(`Direct cloud handshake dropped for ${cleanHost}`);
         }
 
         const data = await response.json();
 
-        // xdefcon processes active variables directly inside data.players and data.max
-        if (data && data.success) {
-          setPlayersOnline(data.players ?? 0);
-          setMaxPlayers(data.max ?? 20);
+        // MCStatus outputs values directly into data.players.online and data.players.max
+        if (data && data.online && data.players) {
+          setPlayersOnline(data.players.online ?? 0);
+          setMaxPlayers(data.players.max ?? 20);
         }
       } catch (error) {
-        console.error("Direct browser socket query failed:", error);
+        console.error("Direct browser cloud query failed:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000); // Pull fresh counters every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000); // Refreshes player counts every 30 seconds
     return () => clearInterval(interval);
   }, [serverIp]);
 
