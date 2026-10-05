@@ -31,7 +31,7 @@ export default function WalletPage() {
     },
     {
         name: "RLCraft",
-        ip: "play.rx-gaming.online:25565", // Verify that this port matches your server dashboard panel
+        ip: "Play.rx-gaming.online:25565", // Verify that this port matches your server dashboard panel
         tag: "Modded Java",
         tagColor: "bg-purple-100 text-purple-800 border-purple-300"
     }
