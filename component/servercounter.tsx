@@ -7,7 +7,6 @@ interface ServerCounterProps {
   serverName: string;
 }
 
-// FIXED: Explicitly declares the exact capitalized "ServerCounter" default export name TypeScript expects
 export default function ServerCounter({ serverIp, serverName }: ServerCounterProps) {
   const [playersOnline, setPlayersOnline] = useState<number>(0);
   const [maxPlayers, setMaxPlayers] = useState<number>(20);
@@ -18,21 +17,33 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
     async function fetchServerStatus() {
       try {
-        // Queries your flatter backend route route file at /api
-        const response = await fetch(`/api?ip=${encodeURIComponent(serverIp)}`);
-        const data = await response.json();
+        // Parse host and port values cleanly to align with the direct tracker syntax
+        const [host, portStr] = serverIp.split(":");
+        const port = portStr || "25565";
+
+        // Query the high-performance xdefcon cluster securely via standard HTTPS routes
+        const response = await fetch(`https://xdefcon.com{host}/${port}/full`);
         
-        setPlayersOnline(data.playersOnline ?? 0);
-        setMaxPlayers(data.maxPlayers ?? 20);
+        if (!response.ok) {
+          throw new Error(`Cloud handshake dropped for ${host}:${port}`);
+        }
+
+        const data = await response.json();
+
+        // xdefcon processes active variables directly inside data.players and data.max
+        if (data && data.success) {
+          setPlayersOnline(data.players ?? 0);
+          setMaxPlayers(data.max ?? 20);
+        }
       } catch (error) {
-        console.error("Internal API endpoint connection failed:", error);
+        console.error("Direct browser socket query failed:", error);
       } finally {
         setLoading(false);
       }
     }
 
     fetchServerStatus();
-    const interval = setInterval(fetchServerStatus, 30000); // Checks for updates every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000); // Pull fresh counters every 30 seconds
     return () => clearInterval(interval);
   }, [serverIp]);
 
@@ -42,7 +53,7 @@ export default function ServerCounter({ serverIp, serverName }: ServerCounterPro
 
   return (
     <span className="text-stone-800 text-sm font-bold tracking-wide flex items-center gap-1.5">
-      {/* Active Pulse Animation Radar Light */}
+      {/* Active Pulse Animation Dot */}
       <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
