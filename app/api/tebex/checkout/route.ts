@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-// Forces Vercel to look up fresh stats at runtime instead of caching defaults at build time
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
@@ -12,25 +11,36 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing server IP parameter" }, { status: 400 });
     }
 
-    // Connect directly to the high-performance MCAPI.eu status cluster
-    const response = await fetch(`https://mcapi.eu{ip}/status`, {
-      cache: "no-store", // Prevents regional web browser caching issues
+    const [host] = ip.split(":");
+
+    // We map your active ServerListPlus web ports 
+    let webPort = "8804"; // Insanecraft
+    if (host.includes("rx-gaming") || host.includes("play.rx-gaming")) {
+      webPort = "8805";   // RLCraft
+    }
+
+    // WE ROUTE THROUGH A PUBLIC CORS PROXY THAT WORKS NATIVELY INSIDE VERCEL SERVERLESS RESTRICTIONS
+    const targetUrl = `http://${host}:${webPort}/api/status`;
+    const response = await fetch(`https://allorigins.win{encodeURIComponent(targetUrl)}`, {
+      cache: "no-store",
     });
 
     if (!response.ok) {
-      throw new Error(`Cloud socket node rejected handshake for ${ip} (Status: ${response.status})`);
+      throw new Error(`CORS proxy rejected handshake for ${host} on port ${webPort}`);
     }
 
-    const data = await response.json();
+    const wrapperData = await response.json();
+    
+    // Parse the inner payload string sent back from ServerListPlus
+    const data = JSON.parse(wrapperData.contents);
 
     return NextResponse.json({
-      online: data.status ?? false,
+      online: true,
       playersOnline: data.players?.online ?? 0,
       maxPlayers: data.players?.max ?? 20,
     });
   } catch (error) {
-    console.error("Cloud tracking query failed:", error);
-    // Graceful default protects your front cards from breaking if the game servers are offline
+    console.error("Cloud status proxy tunnel failure:", error);
     return NextResponse.json({
       online: false,
       playersOnline: 0,
